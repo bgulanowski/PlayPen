@@ -7,23 +7,14 @@ public class MessageHistoryVC : MonoBehaviour
     private Text historyText;
 
     [SerializeField]
-    private Network network;
+    private Chat chat;
 
     private void OnEnable() {
-        network.ChatChanged += UpdateChat;
+        chat.OnNewMessage += MessageReceived;
     }
 
     private void OnDisable() {
-        network.ChatChanged -= UpdateChat;
-    }
-
-    private void UpdateChat(Chat old, Chat chat) {
-        if (old != null) {
-            old.OnNewMessage -= MessageReceived;
-        }
-        if (chat != null) {
-            chat.OnNewMessage += MessageReceived;
-        }
+        chat.OnNewMessage -= MessageReceived;
     }
 
     public void MessageReceived(ChatMessage e) {

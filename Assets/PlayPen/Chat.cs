@@ -7,25 +7,17 @@ public class Chat : NetworkBehaviour
 
     int messageCount;
 
+    public Player Player { get; set; }
+
     public override void OnStartClient() {
-        if (hasAuthority) {
 
-            Network network = FindObjectOfType<Network>();
-            network.Chat = this;
-
-            messages.Callback += MessagesChanged;
-        }
+        messages.Callback += MessagesChanged;
 
         if (OnNewMessage != null) {
             foreach (var message in messages) {
                 OnNewMessage(message);
             }
         }
-    }
-
-    public override void OnStopClient() {
-        base.OnStopClient();
-
     }
 
     public event System.Action<ChatMessage> OnNewMessage;
@@ -36,9 +28,9 @@ public class Chat : NetworkBehaviour
         }
     }
 
-    public void SendChatMessage(string message, string handle = null) {
+    public void SendChatMessage(string message) {
         if (isClient) {
-            CmdSendChatMessage(message, handle);
+            CmdSendChatMessage(message, Player.handle);
         }
         else if (isServer) {
             Debug.Log("Can't send messages from server");

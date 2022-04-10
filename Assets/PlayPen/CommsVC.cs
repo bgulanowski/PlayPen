@@ -19,11 +19,12 @@ public class CommsVC : MonoBehaviour
     [SerializeField]
     private ColourPicker colorPanel;
 
-    [SerializeField]
-    private Player player;
+    // fixme: this won't work -- how do we find the local player?
+    //[SerializeField]
+    //private Player player;
 
     [SerializeField]
-    private NetworkManager network;
+    private Network network;
 
     // Start is called before the first frame update
     void Start()
@@ -31,12 +32,15 @@ public class CommsVC : MonoBehaviour
         colorPanel.ColorChanged += OnColorChanged;
         colorPanel.gameObject.SetActive(false);
 
-        handleField.text = player.handle;
-        colorImage.color = player.color;
+        // todo: get these from user prefs
+        //handleField.text = player.handle;
+        //colorImage.color = player.color;
+        colorImage.color = colorPanel.Color;
     }
 
     public void UpdateHandle(string handle) {
-        player.handle = handle;
+        network.Player.handle = handle;
+        // save to user prefs
     }
 
     public void ToggleColorPanel() {
@@ -46,7 +50,8 @@ public class CommsVC : MonoBehaviour
 
     private void OnColorChanged(Color color) {
         colorImage.color = color;
-        player.color = color;
+        network.Player.color = color;
+        // todo: save to user prefs
     }
     public void Awake() {
         handleField.ActivateInputField();
@@ -55,9 +60,10 @@ public class CommsVC : MonoBehaviour
     public void ToggleHost() {
         if (network.mode == NetworkManagerMode.Host) {
             network.StopHost();
+            // todo: update player handle from user prefs
         }
         else if (network.mode == NetworkManagerMode.Offline) {
-            player.handle = "Host";
+            network.Player.handle = "Host";
             handleField.text = "Host";
             network.StartHost();
         }

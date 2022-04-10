@@ -1,17 +1,17 @@
+using UnityEngine;
 using Mirror;
 
 public class Network : NetworkManager
 {
-    public Chat Chat {
-        get => _chat;
-        set {
-            var oldChat = _chat;
-            _chat = value;
-            ChatChanged?.Invoke(oldChat, _chat);
-        }
+    public Player Player { get; set; }
+
+    [SerializeField]
+    private Chat chat;
+
+    public override void OnClientConnect() {
+        base.OnClientConnect();
+
+        var conn = NetworkClient.connection as LocalConnectionToClient;
+        Player = conn.identity.GetComponent<Player>();
     }
-
-    private Chat _chat;
-
-    public event System.Action<Chat, Chat> ChatChanged;
 }

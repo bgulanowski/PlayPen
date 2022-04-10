@@ -12,19 +12,8 @@ public class NewMessageVC : MonoBehaviour
     [SerializeField]
     private Network network;
 
-    public Chat chat;
-
-    private void OnEnable() {
-        network.ChatChanged += UpdateChat;
-    }
-
-    private void OnDisable() {
-        network.ChatChanged -= UpdateChat;
-    }
-
-    private void UpdateChat(Chat _, Chat chat) {
-        this.chat = chat;
-    }
+    [SerializeField]
+    private Chat chat;
 
     public void MessageChanged(string message) {
         sendButton.interactable = chat != null && message.Length > 0;
