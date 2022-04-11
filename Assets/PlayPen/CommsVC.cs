@@ -57,13 +57,11 @@ public class CommsVC : MonoBehaviour
     }
 
 
-    // Start is called before the first frame update
     void Start()
     {
         colorPanel.ColorChanged += OnColorChanged;
         colorPanel.gameObject.SetActive(false);
 
-        // todo: get these from user prefs
         handleField.text = LoadHandle();
         colorImage.color = LoadColor();
 
@@ -110,7 +108,7 @@ public class CommsVC : MonoBehaviour
             player.Color = color;
             player.BroadcastProperties();
         }
-        PlayerPrefs.SetString(PlayerColorKey, ColorUtility.ToHtmlStringRGB(color));
+        SaveColor(color);
     }
     public void Awake() {
         handleField.ActivateInputField();
