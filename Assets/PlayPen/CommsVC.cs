@@ -68,13 +68,12 @@ public class CommsVC : MonoBehaviour
         colorImage.color = LoadColor();
 
         network.PlayerChanged += OnPlayerChanged;
-        network.ConnectionChanged += OnConnectionChanged;
+        network.Connected += OnConnectionChanged;
     }
 
     private void OnPlayerChanged() {
         player = network.Player;
         if (player != null) {
-            Debug.Log("Updating player properties");
             player.Handle = handleField.text;
             player.Color = colorImage.color;
             player.BroadcastProperties();
@@ -112,7 +111,6 @@ public class CommsVC : MonoBehaviour
             player.BroadcastProperties();
         }
         PlayerPrefs.SetString(PlayerColorKey, ColorUtility.ToHtmlStringRGB(color));
-        Debug.Log($"Saved color {color} to prefs");
     }
     public void Awake() {
         handleField.ActivateInputField();

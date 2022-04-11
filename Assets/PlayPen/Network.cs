@@ -18,19 +18,21 @@ public class Network : NetworkManager
 
     public event Action PlayerChanged;
 
-    public event Action ConnectionChanged;
+    public event Action Connected;
+
+    public event Action Disconnected;
 
     [SerializeField]
     private Chat chat;
 
     public override void OnClientConnect() {
         base.OnClientConnect();
-        ConnectionChanged?.Invoke();
+        Connected?.Invoke();
     }
 
     public override void OnClientDisconnect() {
         base.OnClientDisconnect();
-        ConnectionChanged?.Invoke();
+        Disconnected?.Invoke();
         Player = null;
     }
 }

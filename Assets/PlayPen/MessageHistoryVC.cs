@@ -14,21 +14,22 @@ public class MessageHistoryVC : MonoBehaviour
 
     private void OnEnable() {
         chat.OnNewMessage += MessageReceived;
-        network.PlayerChanged += OnPlayerChanged;
+        network.Connected += OnConnected;
+        network.Disconnected += OnDisconnected;
     }
 
     private void OnDisable() {
         chat.OnNewMessage -= MessageReceived;
-        network.PlayerChanged -= OnPlayerChanged;
+        network.Connected -= OnConnected;
+        network.Disconnected -= OnDisconnected;
     }
 
-    private void OnPlayerChanged() {
-        if (network.Player == null) {
-            historyText.text += "\n\t<i><color=\"grey\">Conversation ended</color></i>\n";
-        }
-        else {
-            historyText.text += "\n\t<i><color=\"grey\">New Conversation</color></i>";
-        }
+    private void OnConnected() {
+        historyText.text = "\t<i><color=\"grey\">Connected to Server</color></i>\n";
+    }
+
+    private void OnDisconnected() {
+        historyText.text += "\n\t<i><color=\"grey\">Disconnected from Server</color></i>\n";
     }
 
     public void MessageReceived(ChatMessage e) {
