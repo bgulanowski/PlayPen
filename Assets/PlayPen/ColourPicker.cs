@@ -104,12 +104,6 @@ public class ColourPicker : MonoBehaviour
         Color = colourImage.color;
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
     public void UpdateColor(Color color) {
         Color = color;
         UpdateColorControls();

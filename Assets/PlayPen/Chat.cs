@@ -25,11 +25,6 @@ public class Chat : NetworkBehaviour {
         }
     }
 
-    public override void OnStopServer() {
-        base.OnStopServer();
-        messages.Clear();
-    }
-
     public event System.Action<ChatMessage> OnNewMessage;
 
     private void MessagesChanged(SyncList<ChatMessage>.Operation op, int itemIndex, ChatMessage oldItem, ChatMessage newItem) {
