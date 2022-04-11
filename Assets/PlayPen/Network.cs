@@ -7,8 +7,10 @@ public class Network : NetworkManager
     public Player Player {
         get => _player;
         set {
-            _player = value;
-            PlayerChanged?.Invoke();
+            if (value != _player) {
+                _player = value;
+                PlayerChanged?.Invoke();
+            }
         }
     }
 
@@ -16,11 +18,19 @@ public class Network : NetworkManager
 
     public event Action PlayerChanged;
 
+    public event Action ConnectionChanged;
+
     [SerializeField]
     private Chat chat;
 
+    public override void OnClientConnect() {
+        base.OnClientConnect();
+        ConnectionChanged?.Invoke();
+    }
+
     public override void OnClientDisconnect() {
-        Player = null;
         base.OnClientDisconnect();
+        ConnectionChanged?.Invoke();
+        Player = null;
     }
 }

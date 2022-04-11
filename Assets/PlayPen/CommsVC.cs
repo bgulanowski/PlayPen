@@ -22,7 +22,7 @@ public class CommsVC : MonoBehaviour
     [SerializeField]
     private Network network;
 
-    private bool playerReady;
+    private Player player;
 
     // Start is called before the first frame update
     void Start()
@@ -35,22 +35,25 @@ public class CommsVC : MonoBehaviour
         //colorImage.color = ;
 
         network.PlayerChanged += OnPlayerChanged;
+        network.ConnectionChanged += OnConnectionChanged;
     }
 
     private void OnPlayerChanged() {
-        playerReady = network.Player != null;
-        Debug.Log("Player changed");
-        if (playerReady) {
+        player = network.Player;
+        if (player != null) {
             Debug.Log("Updating player properties");
-            network.Player.handle = handleField.text;
-            network.Player.color = colorImage.color;
+            player.handle = handleField.text;
+            player.color = colorImage.color;
         }
+    }
+
+    private void OnConnectionChanged() {
         UpdateUIState();
     }
 
     public void UpdateHandle(string handle) {
-        if (playerReady) {
-            network.Player.handle = handle;
+        if (player != null) {
+            player.handle = handle;
         }
         UpdateUIState();
         // todo: save to user prefs - on connection?
@@ -63,8 +66,8 @@ public class CommsVC : MonoBehaviour
 
     private void OnColorChanged(Color color) {
         colorImage.color = color;
-        if (playerReady) {
-            network.Player.color = color;
+        if (player != null) {
+            player.color = color;
         }
         // todo: save to user prefs
     }
@@ -96,13 +99,32 @@ public class CommsVC : MonoBehaviour
 
     private void UpdateUIState() {
 
-        var mode = network.mode;
-        bool isOffline = mode == NetworkManagerMode.Offline;
-        bool isHost = mode == NetworkManagerMode.Host;
-        bool hasName = handleField.text.Length > 0;
+        string hostTitle = "Start";
+        string clientTitle = "Join";
+        bool isOffline = false;
+        bool isHost = false;
+        bool isClient = false;
 
-        hostButton.GetComponentInChildren<Text>().text = isHost ? "Stop" : "Start";
-        clientButton.interactable = isOffline && hasName;
+        switch (network.mode) {
+            case NetworkManagerMode.Offline:
+                isOffline = true;
+                break;
+
+            case NetworkManagerMode.Host:
+                isHost = true;
+                hostTitle = "Stop";
+                break;
+
+            case NetworkManagerMode.ClientOnly:
+                isClient = true;
+                clientTitle = "Leave";
+                break;
+        }
+
+        clientButton.interactable = !isHost;
+        hostButton.interactable = !isClient;
         handleField.interactable = isOffline;
+        hostButton.GetComponentInChildren<Text>().text = hostTitle;
+        clientButton.GetComponentInChildren<Text>().text = clientTitle;
     }
 }
