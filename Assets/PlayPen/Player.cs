@@ -1,11 +1,23 @@
+using System;
 using UnityEngine;
 using Mirror;
 
 public class Player : NetworkBehaviour
 {
-    [SyncVar] public string handle;
+    public string Handle {
+        get => _handle;
+        set => localHandle = value;        
+    }
+    public Color Color {
+        get => _color;
+        set => localColor = value;
+    }
 
-    [SyncVar] public Color color;
+    [SyncVar] private string _handle;
+    [SyncVar] private Color _color;
+
+    private string localHandle;
+    private Color localColor;
 
     Chat chat;
 
@@ -16,33 +28,38 @@ public class Player : NetworkBehaviour
 
     public override void OnStopServer() {
         base.OnStopServer();
-        chat.Disconnect(handle);
+        chat.Disconnect(_handle);
     }
 
     public override void OnStartLocalPlayer() {
         base.OnStartLocalPlayer();
         FindObjectOfType<Network>().Player = this;
-
-        // make sure client is ready and we are configured
         CmdSendConnectMessage();
     }
 
+    public void BroadcastProperties() {
+        CmdUpdateProperties(localHandle, localColor);
+    }
+
     public void SendChatMessage(string message) {
-        if (isClient) {
-            CmdSendChatMessage(message);
-        }
-        else if (isServer) {
-            Debug.Log("Can't send messages from server");
-        }
+        CmdSendChatMessage(message);
+    }
+
+    [Command]
+    private void CmdUpdateProperties(string handle, Color color) {
+        chat.ClearColorForPlayer(_handle);
+        _handle = handle;
+        _color = color;
+        chat.SetColorForPlayer(_handle, _color);
     }
 
     [Command]
     private void CmdSendConnectMessage() {
-        chat.Connect(handle, color);
+        chat.Connect(_handle, _color);
     }
 
     [Command]
     private void CmdSendChatMessage(string message) {
-        chat.Send(handle, message);
+        chat.Send(_handle, message);
     }
 }

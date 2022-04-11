@@ -40,6 +40,17 @@ public class Chat : NetworkBehaviour {
         return "0F0F0F";
     }
 
+    public void SetColorForPlayer(string handle, Color color) {
+        string hex = ColorUtility.ToHtmlStringRGB(color);
+        playerColors[handle] = hex;
+    }
+
+    public void ClearColorForPlayer(string handle) {
+        if (handle != null) {
+            playerColors.Remove(handle);
+        }
+    }
+
     public void Send(string handle, string content) {
 
         ChatMessage message = new ChatMessage {
@@ -53,16 +64,20 @@ public class Chat : NetworkBehaviour {
 
     public void Connect(string handle, Color color) {
 
+        SetColorForPlayer(handle, color);
+
         ChatMessage message = new ChatMessage {
             index = IncrementCount(),
             messageType = MessageType.Connect,
             handle = handle,
-            content = ColorUtility.ToHtmlStringRGB(color)
+            content = playerColors[handle]
         };
         messages.Add(message);
     }
 
     public void Disconnect(string handle) {
+
+        ClearColorForPlayer(handle);
 
         ChatMessage message = new ChatMessage {
             index = IncrementCount(),

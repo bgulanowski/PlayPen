@@ -24,6 +24,39 @@ public class CommsVC : MonoBehaviour
 
     private Player player;
 
+
+    const string PlayerHandleKey = "PlayerHandle";
+    const string PlayerColorKey = "PlayerColor";
+
+    private static void SaveHandle(string handle) {
+        PlayerPrefs.SetString(PlayerHandleKey, handle);
+    }
+
+    private static string LoadHandle() {
+        return PlayerPrefs.GetString(PlayerHandleKey);
+    }
+
+    private static void SaveColor(Color color) {
+        var s = ColorUtility.ToHtmlStringRGB(color);
+        PlayerPrefs.SetString(PlayerColorKey, s);
+    }
+
+    private static Color LoadColor() {
+
+        string s = PlayerPrefs.GetString(PlayerColorKey);
+        if (s?.Length > 0) {
+            if (s[0] != '#') {
+                s = $"#{s}";
+            }
+            if (ColorUtility.TryParseHtmlString(s, out Color c)) {
+                return c;
+            }
+        }
+
+        return new Color(15, 15, 15);
+    }
+
+
     // Start is called before the first frame update
     void Start()
     {
@@ -31,8 +64,8 @@ public class CommsVC : MonoBehaviour
         colorPanel.gameObject.SetActive(false);
 
         // todo: get these from user prefs
-        //handleField.text = ;
-        //colorImage.color = ;
+        handleField.text = LoadHandle();
+        colorImage.color = LoadColor();
 
         network.PlayerChanged += OnPlayerChanged;
         network.ConnectionChanged += OnConnectionChanged;
@@ -42,8 +75,9 @@ public class CommsVC : MonoBehaviour
         player = network.Player;
         if (player != null) {
             Debug.Log("Updating player properties");
-            player.handle = handleField.text;
-            player.color = colorImage.color;
+            player.Handle = handleField.text;
+            player.Color = colorImage.color;
+            player.BroadcastProperties();
         }
     }
 
@@ -51,12 +85,19 @@ public class CommsVC : MonoBehaviour
         UpdateUIState();
     }
 
+    public void HandleChanged(string _) {
+        clientButton.interactable = handleField.text.Length > 0;
+    }
+
     public void UpdateHandle(string handle) {
-        if (player != null) {
-            player.handle = handle;
+        if (network.mode != NetworkManagerMode.Host && handle?.Length > 0) {
+            if (player != null) {
+                player.Handle = handle;
+                player.BroadcastProperties();
+            }
+            SaveHandle(handle);
+            UpdateUIState();
         }
-        UpdateUIState();
-        // todo: save to user prefs - on connection?
     }
 
     public void ToggleColorPanel() {
@@ -67,9 +108,11 @@ public class CommsVC : MonoBehaviour
     private void OnColorChanged(Color color) {
         colorImage.color = color;
         if (player != null) {
-            player.color = color;
+            player.Color = color;
+            player.BroadcastProperties();
         }
-        // todo: save to user prefs
+        PlayerPrefs.SetString(PlayerColorKey, ColorUtility.ToHtmlStringRGB(color));
+        Debug.Log($"Saved color {color} to prefs");
     }
     public void Awake() {
         handleField.ActivateInputField();
@@ -77,8 +120,8 @@ public class CommsVC : MonoBehaviour
 
     public void ToggleHost() {
         if (network.mode == NetworkManagerMode.Host) {
+            handleField.text = player.Handle;
             network.StopHost();
-            // todo: update player handle from user prefs
         }
         else if (network.mode == NetworkManagerMode.Offline) {
             handleField.text = "Host";
@@ -121,7 +164,7 @@ public class CommsVC : MonoBehaviour
                 break;
         }
 
-        clientButton.interactable = !isHost;
+        clientButton.interactable = !isHost && handleField.text.Length > 0;
         hostButton.interactable = !isClient;
         handleField.interactable = isOffline;
         hostButton.GetComponentInChildren<Text>().text = hostTitle;
