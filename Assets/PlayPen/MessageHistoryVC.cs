@@ -24,10 +24,10 @@ public class MessageHistoryVC : MonoBehaviour
 
     private void OnPlayerChanged() {
         if (network.Player == null) {
-            historyText.text += "\n\t<i><color=\"grey\">Conversation ended</color></i>";
+            historyText.text += "\n\t<i><color=\"grey\">Conversation ended</color></i>\n";
         }
         else {
-            historyText.text = "\t<i><color=\"grey\">New Conversation</color></i>";
+            historyText.text += "\n\t<i><color=\"grey\">New Conversation</color></i>";
         }
     }
 
