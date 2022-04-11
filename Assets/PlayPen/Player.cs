@@ -7,12 +7,29 @@ public class Player : NetworkBehaviour
 
     [SyncVar] public Color color;
 
-    public override void OnStartClient() {
-        base.OnStartClient();
+    Chat chat;
 
-        Chat chat = FindObjectOfType<Chat>();
-        if (chat != null) {
-            chat.Player = this;
+    public override void OnStartServer() {
+        base.OnStartServer();
+        chat = FindObjectOfType<Chat>();
+    }
+
+    public override void OnStartLocalPlayer() {
+        base.OnStartLocalPlayer();
+        FindObjectOfType<Network>().Player = this;
+    }
+
+    public void SendChatMessage(string message) {
+        if (isClient) {
+            CmdSendChatMessage(message);
         }
+        else if (isServer) {
+            Debug.Log("Can't send messages from server");
+        }
+    }
+
+    [Command]
+    private void CmdSendChatMessage(string message) {
+        chat.Send(handle, message);
     }
 }

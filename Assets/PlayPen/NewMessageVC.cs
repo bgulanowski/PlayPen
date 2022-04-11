@@ -12,22 +12,25 @@ public class NewMessageVC : MonoBehaviour
     [SerializeField]
     private Network network;
 
-    [SerializeField]
-    private Chat chat;
+    public Player Player { get; set; }
+
+    private void Awake() {
+        network.PlayerReady += OnPlayerReady;
+    }
+
+    private void OnPlayerReady() {
+        Player = network.Player;
+    }
 
     public void MessageChanged(string message) {
-        sendButton.interactable = chat != null && message.Length > 0;
+        sendButton.interactable = Player != null && message.Length > 0;
     }
 
     public void MessageComplete(string message) {
-        if (chat != null && message.Length > 0) {
-            Send();
+        if (Player != null && message.Length > 0) {
+            Player.SendChatMessage(messageField.text);
+            messageField.text = "";
             messageField.ActivateInputField();
         }
-    }
-
-    public void Send() {
-        chat.SendChatMessage(messageField.text);
-        messageField.text = "";
     }
 }

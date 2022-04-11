@@ -18,10 +18,29 @@ public class MessageHistoryVC : MonoBehaviour
     }
 
     public void MessageReceived(ChatMessage e) {
-        historyText.text += $"\n<b>{e.handle}</b>: {e.content}";
+
+        string c = chat.ColorForPlayer(e.handle);
+        string s = $"<b><color=\"#{c}\">{e.handle}</color></b>";
+
+        switch (e.messageType) {
+            case MessageType.Chat:
+                s = $"\n{s}: {e.content}";
+                break;
+            case MessageType.Connect:
+                s = $"\n\t<i>{s} <color=\"grey\">has joined.</color></i>";
+                break;
+
+            case MessageType.Disconnect:
+                s = $"\n\t<i>{s} <color=\"grey\">has left.</color></i>";
+                break;
+
+            default:
+                break;
+        }
+        historyText.text += s;
     }
 
     private void Awake() {
-        historyText.text = "<i><color=\"grey\">New Conversation</color></i>";
+        historyText.text = "\t<i><color=\"grey\">New Conversation</color></i>";
     }
 }

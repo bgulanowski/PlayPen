@@ -1,13 +1,13 @@
 using Mirror;
 using UnityEngine;
 
-public class Chat : NetworkBehaviour
-{
+public class Chat : NetworkBehaviour {
+
     readonly SyncList<ChatMessage> messages = new SyncList<ChatMessage>();
 
-    int messageCount;
+    readonly SyncDictionary<string, string> playerColors = new SyncDictionary<string, string>();
 
-    public Player Player { get; set; }
+    int messageCount;
 
     public override void OnStartClient() {
 
@@ -28,21 +28,49 @@ public class Chat : NetworkBehaviour
         }
     }
 
-    public void SendChatMessage(string message) {
-        if (isClient) {
-            CmdSendChatMessage(message, Player.handle);
+    public string ColorForPlayer(string handle) {
+        if (playerColors.TryGetValue(handle, out string value)) {
+            return value;
         }
-        else if (isServer) {
-            Debug.Log("Can't send messages from server");
-        }
+        return "#000000";
     }
 
-    [Command]
-    private void CmdSendChatMessage(string message, string handle) {
+    public void Send(string handle, string content) {
 
+        ChatMessage message = new ChatMessage {
+            index = IncrementCount(),
+            messageType = MessageType.Chat,
+            handle = handle,
+            content = content
+        };
+        messages.Add(message);
+    }
+
+    public void Connected(Player player) {
+
+        playerColors[player.handle] = ColorUtility.ToHtmlStringRGB(player.color);
+
+        ChatMessage message = new ChatMessage {
+            index = IncrementCount(),
+            messageType = MessageType.Connect,
+            handle = player.handle
+        };
+        messages.Add(message);
+    }
+
+    public void Disconnected(Player player) {
+
+        ChatMessage message = new ChatMessage {
+            index = IncrementCount(),
+            messageType = MessageType.Connect,
+            handle = player.handle
+        };
+        messages.Add(message);
+    }
+
+    private int IncrementCount() {
         int count = messageCount;
-        messageCount++;
-
-        messages.Add(new ChatMessage { index = count, handle = handle, content = message });
+        ++messageCount;
+        return count;
     }
 }

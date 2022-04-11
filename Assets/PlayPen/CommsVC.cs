@@ -19,12 +19,10 @@ public class CommsVC : MonoBehaviour
     [SerializeField]
     private ColourPicker colorPanel;
 
-    // fixme: this won't work -- how do we find the local player?
-    //[SerializeField]
-    //private Player player;
-
     [SerializeField]
     private Network network;
+
+    private bool playerReady;
 
     // Start is called before the first frame update
     void Start()
@@ -33,14 +31,27 @@ public class CommsVC : MonoBehaviour
         colorPanel.gameObject.SetActive(false);
 
         // todo: get these from user prefs
-        //handleField.text = player.handle;
-        //colorImage.color = player.color;
-        colorImage.color = colorPanel.Color;
+        //handleField.text = ;
+        //colorImage.color = ;
+
+        network.PlayerReady += OnPlayerReady;
+    }
+
+    private void OnPlayerReady() {
+        playerReady = network.Player != null;
+        if (playerReady) {
+            network.Player.handle = handleField.text;
+            network.Player.color = colorImage.color;
+        }
+        UpdateUIState();
     }
 
     public void UpdateHandle(string handle) {
-        network.Player.handle = handle;
-        // save to user prefs
+        if (playerReady) {
+            network.Player.handle = handle;
+        }
+        UpdateUIState();
+        // todo: save to user prefs - on connection?
     }
 
     public void ToggleColorPanel() {
@@ -50,7 +61,9 @@ public class CommsVC : MonoBehaviour
 
     private void OnColorChanged(Color color) {
         colorImage.color = color;
-        network.Player.color = color;
+        if (playerReady) {
+            network.Player.color = color;
+        }
         // todo: save to user prefs
     }
     public void Awake() {
@@ -63,7 +76,6 @@ public class CommsVC : MonoBehaviour
             // todo: update player handle from user prefs
         }
         else if (network.mode == NetworkManagerMode.Offline) {
-            network.Player.handle = "Host";
             handleField.text = "Host";
             network.StartHost();
         }
