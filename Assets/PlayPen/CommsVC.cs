@@ -34,12 +34,14 @@ public class CommsVC : MonoBehaviour
         //handleField.text = ;
         //colorImage.color = ;
 
-        network.PlayerReady += OnPlayerReady;
+        network.PlayerChanged += OnPlayerChanged;
     }
 
-    private void OnPlayerReady() {
+    private void OnPlayerChanged() {
         playerReady = network.Player != null;
+        Debug.Log("Player changed");
         if (playerReady) {
+            Debug.Log("Updating player properties");
             network.Player.handle = handleField.text;
             network.Player.color = colorImage.color;
         }

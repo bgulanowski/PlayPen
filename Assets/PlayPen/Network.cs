@@ -8,13 +8,13 @@ public class Network : NetworkManager
         get => _player;
         set {
             _player = value;
-            PlayerReady?.Invoke();
+            PlayerChanged?.Invoke();
         }
     }
 
     private Player _player;
 
-    public event Action PlayerReady;
+    public event Action PlayerChanged;
 
     [SerializeField]
     private Chat chat;

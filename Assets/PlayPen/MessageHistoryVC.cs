@@ -14,15 +14,15 @@ public class MessageHistoryVC : MonoBehaviour
 
     private void OnEnable() {
         chat.OnNewMessage += MessageReceived;
-        network.PlayerReady += OnPlayerReady;
+        network.PlayerChanged += OnPlayerChanged;
     }
 
     private void OnDisable() {
         chat.OnNewMessage -= MessageReceived;
-        network.PlayerReady -= OnPlayerReady;
+        network.PlayerChanged -= OnPlayerChanged;
     }
 
-    private void OnPlayerReady() {
+    private void OnPlayerChanged() {
         if (network.Player == null) {
             historyText.text += "\n\t<i><color=\"grey\">Conversation ended</color></i>";
         }
