@@ -7,14 +7,8 @@ public class Network : NetworkManager
     public Player Player {
         get => _player;
         set {
-            if (value == null && _player != null) {
-                chat.Disconnected(_player);
-            }
             _player = value;
             PlayerReady?.Invoke();
-            if(_player != null) {
-                chat.Connected(_player);
-            }
         }
     }
 
@@ -26,7 +20,7 @@ public class Network : NetworkManager
     private Chat chat;
 
     public override void OnClientDisconnect() {
-        base.OnClientDisconnect();
         Player = null;
+        base.OnClientDisconnect();
     }
 }

@@ -14,8 +14,12 @@ public class NewMessageVC : MonoBehaviour
 
     public Player Player { get; set; }
 
-    private void Awake() {
+    private void OnEnable() {
         network.PlayerReady += OnPlayerReady;
+    }
+
+    private void OnDisable() {
+        network.PlayerReady -= OnPlayerReady;
     }
 
     private void OnPlayerReady() {

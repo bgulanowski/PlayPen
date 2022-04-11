@@ -9,15 +9,25 @@ public class Chat : NetworkBehaviour {
 
     int messageCount;
 
-    public override void OnStartClient() {
-
+    private void OnEnable() {
         messages.Callback += MessagesChanged;
+    }
 
+    private void OnDisable() {
+        messages.Callback -= MessagesChanged;
+    }
+
+    public override void OnStartClient() {
         if (OnNewMessage != null) {
             foreach (var message in messages) {
                 OnNewMessage(message);
             }
         }
+    }
+
+    public override void OnStopServer() {
+        base.OnStopServer();
+        messages.Clear();
     }
 
     public event System.Action<ChatMessage> OnNewMessage;
@@ -32,7 +42,7 @@ public class Chat : NetworkBehaviour {
         if (playerColors.TryGetValue(handle, out string value)) {
             return value;
         }
-        return "#000000";
+        return "0F0F0F";
     }
 
     public void Send(string handle, string content) {
@@ -46,24 +56,23 @@ public class Chat : NetworkBehaviour {
         messages.Add(message);
     }
 
-    public void Connected(Player player) {
-
-        playerColors[player.handle] = ColorUtility.ToHtmlStringRGB(player.color);
+    public void Connect(string handle, Color color) {
 
         ChatMessage message = new ChatMessage {
             index = IncrementCount(),
             messageType = MessageType.Connect,
-            handle = player.handle
+            handle = handle,
+            content = ColorUtility.ToHtmlStringRGB(color)
         };
         messages.Add(message);
     }
 
-    public void Disconnected(Player player) {
+    public void Disconnect(string handle) {
 
         ChatMessage message = new ChatMessage {
             index = IncrementCount(),
-            messageType = MessageType.Connect,
-            handle = player.handle
+            messageType = MessageType.Disconnect,
+            handle = handle
         };
         messages.Add(message);
     }

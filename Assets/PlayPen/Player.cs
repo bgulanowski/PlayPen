@@ -14,9 +14,17 @@ public class Player : NetworkBehaviour
         chat = FindObjectOfType<Chat>();
     }
 
+    public override void OnStopServer() {
+        base.OnStopServer();
+        chat.Disconnect(handle);
+    }
+
     public override void OnStartLocalPlayer() {
         base.OnStartLocalPlayer();
         FindObjectOfType<Network>().Player = this;
+
+        // make sure client is ready and we are configured
+        CmdSendConnectMessage();
     }
 
     public void SendChatMessage(string message) {
@@ -26,6 +34,11 @@ public class Player : NetworkBehaviour
         else if (isServer) {
             Debug.Log("Can't send messages from server");
         }
+    }
+
+    [Command]
+    private void CmdSendConnectMessage() {
+        chat.Connect(handle, color);
     }
 
     [Command]
