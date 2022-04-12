@@ -37,7 +37,7 @@ public class CommsVC : MonoBehaviour
     }
 
     private static void SaveColor(Color color) {
-        var s = ColorUtility.ToHtmlStringRGB(color);
+        var s = $"#{ColorUtility.ToHtmlStringRGB(color)}";
         PlayerPrefs.SetString(PlayerColorKey, s);
     }
 
@@ -98,17 +98,27 @@ public class CommsVC : MonoBehaviour
     }
 
     public void ToggleColorPanel() {
+        
+        var color = colorImage.color;
         var cp = colorPanel.gameObject;
-        cp.SetActive(!cp.activeSelf);
+        bool isHiding = cp.activeSelf;
+
+        cp.SetActive(!isHiding);
+
+        if (isHiding) {
+            if (player != null) {
+                player.Color = color;
+                player.BroadcastProperties();
+            }
+            SaveColor(color);
+        }
+        else {
+            colorPanel.UpdateColor(color);
+        }
     }
 
     private void OnColorChanged(Color color) {
         colorImage.color = color;
-        if (player != null) {
-            player.Color = color;
-            player.BroadcastProperties();
-        }
-        SaveColor(color);
     }
     public void Awake() {
         handleField.ActivateInputField();

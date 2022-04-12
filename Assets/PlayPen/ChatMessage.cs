@@ -1,9 +1,10 @@
 ﻿
 public enum MessageType {
     None,
-    Chat,
     Connect,
-    Disconnect
+    Disconnect,
+    Chat,
+    ColorChange
 }
 
 [System.Serializable]

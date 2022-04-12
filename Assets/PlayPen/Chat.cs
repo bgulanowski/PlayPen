@@ -18,6 +18,7 @@ public class Chat : NetworkBehaviour {
     }
 
     public override void OnStartClient() {
+        base.OnStartClient();
         if (OnNewMessage != null) {
             foreach (var message in messages) {
                 OnNewMessage(message);
@@ -37,18 +38,22 @@ public class Chat : NetworkBehaviour {
         if (playerColors.TryGetValue(handle, out string value)) {
             return value;
         }
-        return "0F0F0F";
+        return null;
     }
 
     public void SetColorForPlayer(string handle, Color color) {
-        string hex = ColorUtility.ToHtmlStringRGB(color);
-        playerColors[handle] = hex;
-    }
 
-    public void ClearColorForPlayer(string handle) {
-        if (handle != null) {
-            playerColors.Remove(handle);
-        }
+        string hex = $"#{ColorUtility.ToHtmlStringRGB(color)}";
+
+        playerColors[handle] = hex;
+
+        ChatMessage message = new ChatMessage {
+            index = IncrementCount(),
+            messageType = MessageType.ColorChange,
+            handle = handle,
+            content = hex
+        };
+        messages.Add(message);
     }
 
     public void Send(string handle, string content) {
@@ -64,20 +69,18 @@ public class Chat : NetworkBehaviour {
 
     public void Connect(string handle, Color color) {
 
-        SetColorForPlayer(handle, color);
+        var c = $"#{ColorUtility.ToHtmlStringRGB(color)}";
 
         ChatMessage message = new ChatMessage {
             index = IncrementCount(),
             messageType = MessageType.Connect,
             handle = handle,
-            content = playerColors[handle]
+            content = c
         };
         messages.Add(message);
     }
 
     public void Disconnect(string handle) {
-
-        ClearColorForPlayer(handle);
 
         ChatMessage message = new ChatMessage {
             index = IncrementCount(),

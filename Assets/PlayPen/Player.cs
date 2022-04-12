@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 using Mirror;
 
@@ -31,10 +30,10 @@ public class Player : NetworkBehaviour
         chat.Disconnect(_handle);
     }
 
-    public override void OnStartLocalPlayer() {
-        base.OnStartLocalPlayer();
+    public override void OnStartAuthority() {
+        base.OnStartAuthority();
         FindObjectOfType<Network>().Player = this;
-        CmdSendConnectMessage();
+        CmdSendConnectMessage(localHandle, localColor);
     }
 
     public void BroadcastProperties() {
@@ -47,15 +46,14 @@ public class Player : NetworkBehaviour
 
     [Command]
     private void CmdUpdateProperties(string handle, Color color) {
-        chat.ClearColorForPlayer(_handle);
         _handle = handle;
         _color = color;
         chat.SetColorForPlayer(_handle, _color);
     }
 
     [Command]
-    private void CmdSendConnectMessage() {
-        chat.Connect(_handle, _color);
+    private void CmdSendConnectMessage(string handle, Color color) {
+        chat.Connect(handle, color);
     }
 
     [Command]
