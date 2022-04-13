@@ -126,7 +126,7 @@ public class CommsVC : MonoBehaviour
 
     public void ToggleHost() {
         if (network.mode == NetworkManagerMode.Host) {
-            handleField.text = player.Handle;
+            handleField.text = LoadHandle();
             network.StopHost();
         }
         else if (network.mode == NetworkManagerMode.Offline) {
